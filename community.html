@@ -11,6 +11,7 @@
             --text-color: #050505;
             --primary-color: #1877f2;
             --primary-hover: #166fe5;
+            --danger-color: #e41e3f;
             --border-color: #ced0d4;
             --secondary-text: #65676b;
         }
@@ -21,6 +22,7 @@
             --text-color: #e4e6eb;
             --primary-color: #2d88ff;
             --primary-hover: #1a77f2;
+            --danger-color: #ff334b;
             --border-color: #393a3b;
             --secondary-text: #b0b3b8;
         }
@@ -53,7 +55,7 @@
         }
 
         .logo {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: var(--primary-color);
         }
@@ -62,18 +64,46 @@
             text-decoration: none;
             background: var(--bg-color);
             color: var(--text-color);
-            padding: 8px 15px;
+            padding: 8px 14px;
             border-radius: 20px;
             border: none;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
             margin-left: 5px;
         }
 
         .container {
             max-width: 600px;
-            margin: 20px auto;
-            padding: 0 15px;
+            margin: 15px auto;
+            padding: 0 10px;
+        }
+
+        /* شريط الأقسام والفئات */
+        .categories-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            white-space: nowrap;
+        }
+
+        .cat-chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            color: var(--text-color);
+        }
+
+        .cat-chip.active, .cat-chip:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
 
         /* صندوق إنشاء منشور */
@@ -82,7 +112,7 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
@@ -92,22 +122,40 @@
             background: transparent;
             color: var(--text-color);
             resize: none;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
-            padding: 10px;
-            min-height: 80px;
+            padding: 5px;
+            min-height: 70px;
+        }
+
+        .post-options-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            margin-top: 5px;
+        }
+
+        .select-category {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
         }
 
         .post-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 18px;
             border-radius: 20px;
             font-weight: bold;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
+            font-size: 14px;
         }
 
         .post-btn:hover {
@@ -128,6 +176,12 @@
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            justify-content: space-between;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
         }
 
         .avatar {
@@ -149,13 +203,22 @@
         }
 
         .post-time {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--secondary-text);
+        }
+
+        .badge-tag {
+            font-size: 11px;
+            background: var(--bg-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--secondary-text);
+            border: 1px solid var(--border-color);
         }
 
         .post-body {
             font-size: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             line-height: 1.5;
             word-break: break-word;
         }
@@ -164,7 +227,9 @@
             display: flex;
             justify-content: space-around;
             border-top: 1px solid var(--border-color);
-            padding-top: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px 0;
+            margin-bottom: 10px;
         }
 
         .action-option {
@@ -173,12 +238,66 @@
             color: var(--secondary-text);
             font-weight: bold;
             cursor: pointer;
-            padding: 6px 15px;
+            padding: 5px 12px;
             border-radius: 6px;
+            font-size: 13px;
         }
 
         .action-option:hover {
             background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        /* قسم التعليقات */
+        .comments-section {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .comments-section.open {
+            display: block;
+        }
+
+        .comment-box {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .comment-box input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            color: var(--text-color);
+            outline: none;
+            font-size: 13px;
+        }
+
+        .comment-box button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .comment-item {
+            background: var(--bg-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 2px;
+            font-size: 12px;
             color: var(--primary-color);
         }
     </style>
@@ -194,36 +313,67 @@
     </header>
 
     <div class="container">
-        <!-- قسم كتابة منشور -->
+        <!-- شريط الأقسام -->
+        <div class="categories-bar">
+            <div class="cat-chip active" onclick="filterCategory('الكل', this)">الكل</div>
+            <div class="cat-chip" onclick="filterCategory('حالات الطرق', this)">🚨 حالات الطرق</div>
+            <div class="cat-chip" onclick="filterCategory('عروض النقل', this)">📦 عروض ونقل</div>
+            <div class="cat-chip" onclick="filterCategory('صيانة وورش', this)">🛠️ صيانة وقطع غيار</div>
+            <div class="cat-chip" onclick="filterCategory('استفسارات', this)">❓ استفسارات عامة</div>
+        </div>
+
+        <!-- صندوق كتابة منشور -->
         <div class="create-post">
-            <textarea id="postText" placeholder="بماذا تفكر يا عماد؟ شارك حالة الطريق أو ملاحظاتك مع الزملاء..."></textarea>
-            <button class="post-btn" onclick="addNewPost()">نشر الحالة 🚀</button>
+            <textarea id="postText" placeholder="اكتب حالة الطريق، كمين، عطل، أو اطلب بضاعة ونقل يا عماد..."></textarea>
+            <div class="post-options-bar">
+                <select id="postCategory" class="select-category">
+                    <option value="حالات الطرق">🚨 حالة طريق</option>
+                    <option value="عروض النقل">📦 عرض نقل / بضائع</option>
+                    <option value="صيانة وورش">🛠️ صيانة وورش</option>
+                    <option value="استفسارات">❓ استفسار عام</option>
+                </select>
+                <button class="post-btn" onclick="addNewPost()">نشر الحالة 🚀</button>
+            </div>
         </div>
 
         <!-- حائط المنشورات -->
         <div id="postsFeed">
-            <!-- منشور تجريبي أول -->
-            <div class="post-card">
+            <!-- منشور تجريبي 1 -->
+            <div class="post-card" data-category="حالات الطرق">
                 <div class="post-header">
-                    <div class="avatar">ع</div>
-                    <div>
-                        <div class="author-name">عماد (مؤسس الأسطول)</div>
-                        <div class="post-time">منذ ساعتين</div>
+                    <div class="author-info">
+                        <div class="avatar">ع</div>
+                        <div>
+                            <div class="author-name">عماد (مؤسس الأسطول)</div>
+                            <div class="post-time">منذ ساعة</div>
+                        </div>
                     </div>
+                    <div class="badge-tag">🚨 حالات الطرق</div>
                 </div>
                 <div class="post-body">
-                    تم بححمد الله تحديث النظام وإضافة صفحة إدارة الأسطول وحاسبة تكاليف الوقود للسيارات الربع نقل. طريق ممهد وأسبوع موفق للجميع! 🚚💨
+                    طريق السخنة ممهد وحركة مرور الربع نقل ممتازة اليوم. بالتوفيق لكل السائقين على الطرق السريعة! 🚚💨
                 </div>
                 <div class="post-actions">
-                    <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">12</span>)</button>
-                    <button class="action-option">💬 تعليق</button>
+                    <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">14</span>)</button>
+                    <button class="action-option" onclick="toggleComments(this)">💬 تعليق</button>
+                </div>
+                <div class="comments-section">
+                    <div class="comment-list">
+                        <div class="comment-item">
+                            <div class="comment-author">محمود سعيد</div>
+                            تسلم يا هندسة على المتابعة الدائمة.
+                        </div>
+                    </div>
+                    <div class="comment-box">
+                        <input type="text" placeholder="اكتب تعليقاً...">
+                        <button onclick="addComment(this)">إرسال</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // نظام التبديل بين الوضع المضيء والداكن
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute("data-theme");
@@ -234,33 +384,40 @@
 
         window.onload = function() {
             const savedTheme = localStorage.getItem("community_theme") || "light";
-            bodyTheme(savedTheme);
+            document.body.setAttribute("data-theme", savedTheme);
         };
 
-        function bodyTheme(theme) {
-            document.body.setAttribute("data-theme", theme);
-        }
-
-        // دالة نشر منشور جديد
         function addNewPost() {
             const text = document.getElementById("postText").value;
+            const category = document.getElementById("postCategory").value;
             if(text.trim() === "") return;
 
             const feed = document.getElementById("postsFeed");
             const newCard = document.createElement("div");
             newCard.className = "post-card";
+            newCard.setAttribute("data-category", category);
             newCard.innerHTML = `
                 <div class="post-header">
-                    <div class="avatar">س</div>
-                    <div>
-                        <div class="author-name">سائق بالأسطول</div>
-                        <div class="post-time">الآن</div>
+                    <div class="author-info">
+                        <div class="avatar">س</div>
+                        <div>
+                            <div class="author-name">سائق بالأسطول</div>
+                            <div class="post-time">الآن</div>
+                        </div>
                     </div>
+                    <div class="badge-tag">${category}</div>
                 </div>
                 <div class="post-body">${escapeHtml(text)}</div>
                 <div class="post-actions">
                     <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">0</span>)</button>
-                    <button class="action-option">💬 تعليق</button>
+                    <button class="action-option" onclick="toggleComments(this)">💬 تعليق</button>
+                </div>
+                <div class="comments-section">
+                    <div class="comment-list"></div>
+                    <div class="comment-box">
+                        <input type="text" placeholder="اكتب تعليقاً...">
+                        <button onclick="addComment(this)">إرسال</button>
+                    </div>
                 </div>
             `;
             
@@ -268,18 +425,50 @@
             document.getElementById("postText").value = "";
         }
 
-        // دالة الإعجاب التفاعلية
         function likePost(btn) {
             const span = btn.querySelector(".like-count");
-            let count = parseInt(span.innerText);
-            span.innerText = count + 1;
+            span.innerText = parseInt(span.innerText) + 1;
             btn.style.color = "var(--primary-color)";
         }
 
-        // حماية النصوص الأمنية البسيطة
+        function toggleComments(btn) {
+            const card = btn.closest(".post-card");
+            const section = card.querySelector(".comments-section");
+            section.classList.toggle("open");
+        }
+
+        function addComment(btn) {
+            const input = btn.previousElementSibling;
+            const text = input.value;
+            if(text.trim() === "") return;
+
+            const list = btn.closest(".comments-section").querySelector(".comment-list");
+            const item = document.createElement("div");
+            item.className = "comment-item";
+            item.innerHTML = `<div class="comment-author">زميل بالأسطول</div>${escapeHtml(text)}`;
+            list.appendChild(item);
+            input.value = "";
+        }
+
+        function filterCategory(cat, chip) {
+            document.querySelectorAll(".cat-chip").forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+
+            const posts = document.querySelectorAll(".post-card");
+            posts.forEach(post => {
+                const postCat = post.getAttribute("data-category");
+                if(cat === "الكل" || postCat === cat) {
+                    post.style.display = "block";
+                } else {
+                    post.style.display = "none";
+                }
+            });
+        }
+
         function escapeHtml(text) {
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
     </script>
 </body>
 </html>
+                                                               </html>
