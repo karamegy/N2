@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مجتمع السائقين - Global Transport Hub</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #050505;
+            --primary-color: #1877f2;
+            --primary-hover: #166fe5;
+            --border-color: #ced0d4;
+            --secondary-text: #65676b;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-color: #e4e6eb;
+            --primary-color: #2d88ff;
+            --primary-hover: #1a77f2;
+            --border-color: #393a3b;
+            --secondary-text: #b0b3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links a, .nav-links button {
+            text-decoration: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* صندوق إنشاء منشور */
+        .create-post {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .create-post textarea {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            resize: none;
+            font-size: 16px;
+            outline: none;
+            padding: 10px;
+            min-height: 80px;
+        }
+
+        .post-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .post-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* بطاقة المنشور */
+        .post-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .author-name {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--secondary-text);
+        }
+
+        .post-body {
+            font-size: 15px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--border-color);
+            padding-top: 8px;
+        }
+
+        .action-option {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 6px 15px;
+            border-radius: 6px;
+        }
+
+        .action-option:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <div class="logo">🌐 مجتمع السائقين</div>
+        <div class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <button onclick="toggleTheme()">🌓</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- قسم كتابة منشور -->
+        <div class="create-post">
+            <textarea id="postText" placeholder="بماذا تفكر يا عماد؟ شارك حالة الطريق أو ملاحظاتك مع الزملاء..."></textarea>
+            <button class="post-btn" onclick="addNewPost()">نشر الحالة 🚀</button>
+        </div>
+
+        <!-- حائط المنشورات -->
+        <div id="postsFeed">
+            <!-- منشور تجريبي أول -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="avatar">ع</div>
+                    <div>
+                        <div class="author-name">عماد (مؤسس الأسطول)</div>
+                        <div class="post-time">منذ ساعتين</div>
+                    </div>
+                </div>
+                <div class="post-body">
+                    تم بححمد الله تحديث النظام وإضافة صفحة إدارة الأسطول وحاسبة تكاليف الوقود للسيارات الربع نقل. طريق ممهد وأسبوع موفق للجميع! 🚚💨
+                </div>
+                <div class="post-actions">
+                    <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">12</span>)</button>
+                    <button class="action-option">💬 تعليق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // نظام التبديل بين الوضع المضيء والداكن
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("community_theme", newTheme);
+        }
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem("community_theme") || "light";
+            bodyTheme(savedTheme);
+        };
+
+        function bodyTheme(theme) {
+            document.body.setAttribute("data-theme", theme);
+        }
+
+        // دالة نشر منشور جديد
+        function addNewPost() {
+            const text = document.getElementById("postText").value;
+            if(text.trim() === "") return;
+
+            const feed = document.getElementById("postsFeed");
+            const newCard = document.createElement("div");
+            newCard.className = "post-card";
+            newCard.innerHTML = `
+                <div class="post-header">
+                    <div class="avatar">س</div>
+                    <div>
+                        <div class="author-name">سائق بالأسطول</div>
+                        <div class="post-time">الآن</div>
+                    </div>
+                </div>
+                <div class="post-body">${escapeHtml(text)}</div>
+                <div class="post-actions">
+                    <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">0</span>)</button>
+                    <button class="action-option">💬 تعليق</button>
+                </div>
+            `;
+            
+            feed.prepend(newCard);
+            document.getElementById("postText").value = "";
+        }
+
+        // دالة الإعجاب التفاعلية
+        function likePost(btn) {
+            const span = btn.querySelector(".like-count");
+            let count = parseInt(span.innerText);
+            span.innerText = count + 1;
+            btn.style.color = "var(--primary-color)";
+        }
+
+        // حماية النصوص الأمنية البسيطة
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
