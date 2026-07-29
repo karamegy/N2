@@ -1,4 +1,22 @@
-
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الأسطول والسائقين - Global Transport Hub</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #050505;
+            --primary-color: #1877f2;
+            --primary-hover: #166fe5;
+            --success-color: #2e7d32;
+            --warning-color: #ed6c02;
+            --danger-color: #e41e3f;
+            --border-color: #ced0d4;
+            --secondary-text: #65676b;
+        }
 
         [data-theme="dark"] {
             --bg-color: #18191a;
@@ -38,6 +56,8 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .logo {
@@ -46,26 +66,31 @@
             color: var(--primary-color);
         }
 
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .nav-links a, .nav-links button {
             text-decoration: none;
             background: var(--bg-color);
             color: var(--text-color);
             padding: 8px 14px;
             border-radius: 20px;
-            border: none;
+            border: 1px solid var(--border-color);
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
-            margin-left: 5px;
+            font-size: 13px;
         }
 
         .container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 15px auto;
             padding: 0 10px;
         }
 
-        /* بطاقات الإحصائيات السريعة */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -94,7 +119,6 @@
             color: var(--secondary-text);
         }
 
-        /* صندوق الجدول */
         .card-box {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -114,7 +138,10 @@
             gap: 6px;
         }
 
-        /* جدول السائقين المطور */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
         .drivers-table {
             width: 100%;
             border-collapse: collapse;
@@ -187,7 +214,6 @@
             color: white;
         }
 
-        /* نموذج إضافة سائق جديد */
         .form-group {
             margin-bottom: 12px;
         }
@@ -225,14 +251,13 @@
     <header>
         <div class="logo">🚚 إدارة الأسطول والسائقين</div>
         <div class="nav-links">
-            <a href="index.html">الرئيسية</a>
-            <a href="community.html">المجتمع والشات</a>
+            <a href="index.html">🏠 الرئيسية</a>
+            <a href="community.html">🌐 المجتمع والشبكة</a>
             <button onclick="toggleTheme()">🌓</button>
         </div>
     </header>
 
     <div class="container">
-        <!-- إحصائيات سريعة للأسطول -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-title">إجمالي السائقين</div>
@@ -248,48 +273,48 @@
             </div>
         </div>
 
-        <!-- جدول السائقين والسيارات المتاحة -->
         <div class="card-box">
             <div class="card-title">📋 سجل السائقين والسيارات المتاحة</div>
-            <table class="drivers-table">
-                <thead>
-                    <tr>
-                        <th>اسم السائق</th>
-                        <th>نوع السيارة</th>
-                        <th>الحالة</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="driversTableBody">
-                    <tr>
-                        <td><b>عماد (المؤسس)</b></td>
-                        <td>ربع نقل (ربع طن)</td>
-                        <td><span class="status-badge status-available">🟢 متاح للعمل</span></td>
-                        <td>
-                            <div class="action-btns-cell">
-                                <button class="tbl-btn btn-toggle" onclick="toggleDriverStatus(this)">تبديل الحالة</button>
-                                <a href="tel:01000000000" class="tbl-btn btn-call">📞 اتصال</a>
-                                <button class="tbl-btn btn-delete" onclick="deleteDriver(this)">حذف</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><b>محمد أحمد</b></td>
-                        <td>ربع نقل</td>
-                        <td><span class="status-badge status-busy">🚚 في رحلة حالياً</span></td>
-                        <td>
-                            <div class="action-btns-cell">
-                                <button class="tbl-btn btn-toggle" onclick="toggleDriverStatus(this)">تبديل الحالة</button>
-                                <a href="tel:01000000000" class="tbl-btn btn-call">📞 اتصال</a>
-                                <button class="tbl-btn btn-delete" onclick="deleteDriver(this)">حذف</button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="drivers-table">
+                    <thead>
+                        <tr>
+                            <th>اسم السائق</th>
+                            <th>نوع السيارة</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driversTableBody">
+                        <tr>
+                            <td><b>عماد (المؤسس)</b></td>
+                            <td>ربع نقل (ربع طن)</td>
+                            <td><span class="status-badge status-available">🟢 متاح للعمل</span></td>
+                            <td>
+                                <div class="action-btns-cell">
+                                    <button class="tbl-btn btn-toggle" onclick="toggleDriverStatus(this)">تبديل الحالة</button>
+                                    <a href="tel:01000000000" class="tbl-btn btn-call">📞 اتصال</a>
+                                    <button class="tbl-btn btn-delete" onclick="deleteDriver(this)">حذف</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><b>محمد أحمد</b></td>
+                            <td>ربع نقل</td>
+                            <td><span class="status-badge status-busy">🚚 في رحلة حالياً</span></td>
+                            <td>
+                                <div class="action-btns-cell">
+                                    <button class="tbl-btn btn-toggle" onclick="toggleDriverStatus(this)">تبديل الحالة</button>
+                                    <a href="tel:01000000000" class="tbl-btn btn-call">📞 اتصال</a>
+                                    <button class="tbl-btn btn-delete" onclick="deleteDriver(this)">حذف</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- إضافة سائق جديد للأسطول -->
         <div class="card-box">
             <div class="card-title">➕ إضافة سائق جديد للأسطول</div>
             <div class="form-group">
@@ -331,9 +356,9 @@
 
             rows.forEach(row => {
                 const badge = row.querySelector(".status-badge");
-                if(badge.classList.contains("status-available")) {
+                if(badge && badge.classList.contains("status-available")) {
                     available++;
-                } else {
+                } else if(badge) {
                     busy++;
                 }
             });
