@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مجتمع السائقين</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; direction: rtl; }
+        header { background: #fff; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .logo { font-weight: bold; color: #1877f2; }
+        .nav-links a { text-decoration: none; padding: 6px 12px; background: #e4e6eb; border-radius: 15px; color: #333; font-size: 14px; margin-left: 5px; }
+        .box { background: #fff; padding: 15px; border-radius: 8px; margin-top: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: none; outline: none; }
+        button { background: #1877f2; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px; }
+        .post { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
 
+    <header>
+        <div class="logo">🌐 مجتمع السائقين</div>
+        <div class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="world.html">عالم السائقين</a>
+        </div>
+    </header>
+
+    <div class="box">
+        <textarea id="txt" rows="3" placeholder="أكتب حالة الطريق أو تنبيه للزملاء..."></textarea>
+        <button onclick="addPost()">نشر الحالة</button>
+    </div>
+
+    <div class="box" id="feed">
+        <div class="post">
+            <b>عماد (مؤسس الأسطول)</b>
+            <p>طريق السخنة ممهد وحركة المرور ممتازة اليوم. بالتوفيق لكل السائقين! 🚛</p>
+        </div>
+    </div>
+
+    <script>
+        function addPost() {
+            let val = document.getElementById("txt").value;
+            if(!val.trim()) return alert("اكتب شيئاً أولاً");
+            let feed = document.getElementById("feed");
+            feed.innerHTML = `<div class="post"><b>سائق (عضو)</b><p>${val}</p></div>` + feed.innerHTML;
+            document.getElementById("txt").value = "";
+        }
+    </script>
+
+</body>
+</html>
