@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الأسطول والسائقين - Global Transport Hub</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --border-color: #e2e8f0;
+            --header-bg: #1e293b;
+            --header-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --border-color: #334155;
+            --header-bg: #090d16;
+            --header-text: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: var(--header-text);
+            text-decoration: none;
+            background: rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        button.action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.action-btn:hover {
+            background-color: var(--primary-hover);
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="container">
+        <header>
+            <h1>👨‍✈️ إدارة الأسطول والسائقين</h1>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <button onclick="toggleTheme()" style="background:none; border:none; color:white; cursor:pointer;">🌓 المظهر</button>
+            </div>
+        </header>
+
+        <!-- قسم إضافة وإدارة السائقين -->
+        <section>
+            <h2>📋 سجل السائقين والسيارات المتاحة</h2>
+            <table id="driversTable">
+                <thead>
+                    <tr>
+                        <th>اسم السائق</th>
+                        <th>نوع السيارة</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>عماد (المؤسس)</td>
+                        <td>ربع نقل (ربع طن)</td>
+                        <td>🟢 متاح للعمل</td>
+                    </tr>
+                    <tr>
+                        <td>محمد أحمد</td>
+                        <td>ربع نقل</td>
+                        <td>🚚 في رحلة حالياً</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <input type="text" id="driverName" placeholder="اسم السائق الجديد...">
+            <input type="text" id="carType" placeholder="نوع السيارة (مثال: ربع نقل)...">
+            <button class="action-btn" onclick="addDriver()">إضافة سائق جديد للقائمة</button>
+        </section>
+
+        <!-- قسم حاسبة تكاليف الرحلات -->
+        <section>
+            <h2>🧮 حاسبة تكاليف الرحلة والوقود</h2>
+            <input type="number" id="distance" placeholder="أدخل مسافة الرحلة (بالكيلومتر)...">
+            <input type="number" id="fuelPrice" placeholder="سعر لتر الديزل/الوقود...">
+            <button class="action-btn" onclick="calculateTrip()">احساب التكلفة التقديرية</button>
+            <p id="calcResult" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
+        </section>
+    </div>
+
+    <script>
+        // دالة تغيير المظهر
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        }
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.body.setAttribute("data-theme", savedTheme);
+        };
+
+        // إضافة سائق جديد للجدول
+        function addDriver() {
+            const name = document.getElementById("driverName").value;
+            const car = document.getElementById("carType").value;
+            if(name.trim() !== "" && car.trim() !== "") {
+                const table = document.getElementById("driversTable").getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+                newRow.innerHTML = `<td>${name}</td><td>${car}</td><td>🟢 متاح</td>`;
+                document.getElementById("driverName").value = "";
+                document.getElementById("carType").value = "";
+            }
+        }
+
+        // حساب تكلفة الرحلة
+        function calculateTrip() {
+            const distance = parseFloat(document.getElementById("distance").value);
+            const fuelPrice = parseFloat(document.getElementById("fuelPrice").value);
+            if(!isNaN(distance) && !isNaN(fuelPrice)) {
+                // افترضنا معدل استهلاك تقريبي للسيارة الربع نقل (مثلاً كل 10 كم لتر واحد)
+                const litersNeeded = distance / 10;
+                const totalCost = litersNeeded * fuelPrice;
+                document.getElementById("calcResult").innerText = `إجمالي استهلاك الوقود التقديري: ${litersNeeded.toFixed(1)} لتر | التكلفة: ${totalCost.toFixed(2)} جنيه`;
+            } else {
+                document.getElementById("calcResult").innerText = "الرجاء إدخال بيانات صحيحة للحساب.";
+            }
+        }
+    </script>
+</body>
+</html>
