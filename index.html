@@ -1,14 +1,12 @@
-TYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Transport Hub V52 Social & Enterprise</title>
     <link rel="manifest" href="manifest.json">
-
     <meta name="theme-color" content="#0f172a">
     
-    <!-- المكتبات الأساسية -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -45,7 +43,6 @@ TYPE html>
             background: #1e293b; color: #38bdf8; padding: 8px 12px; border-radius: 8px;
             font-size: 13px; margin-bottom: 12px; border-right: 4px solid var(--accent); overflow: hidden; white-space: nowrap;
         }
-        .news-ticker marquee { font-weight: bold; }
 
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -65,6 +62,22 @@ TYPE html>
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
         }
 
+        .header-links {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255,255,255,0.15);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
         .alert-banner { background: var(--danger); color: white; padding: 8px; border-radius: 8px; font-size: 11px; margin-bottom: 10px; font-weight: bold; display: none; }
         .cloud-badge { background: var(--success); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
 
@@ -76,7 +89,7 @@ TYPE html>
         .search-box { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; font-size: 13px; background: var(--card-bg); color: var(--text-color); }
 
         nav { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
-        nav button, nav a.nav-link { background: #e2e8f0; color: #334155; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: bold; font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+        nav button { background: #e2e8f0; color: #334155; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: bold; font-size: 11px; }
         nav button.active { background: var(--accent); color: white; }
 
         .app-section { display: none; }
@@ -98,15 +111,9 @@ TYPE html>
 
         #signature-pad { border: 1px dashed var(--border-color); border-radius: 6px; background: #fff; width: 100%; height: 80px; touch-action: none; }
         .badge { padding: 3px 6px; border-radius: 10px; font-size: 9px; font-weight: bold; color: white; cursor: pointer; }
-        
-        .bg-pending { background-color: var(--warning); }
-        .bg-transit { background-color: var(--accent); }
-        .bg-delivered { background-color: var(--success); }
-        .bg-returned { background-color: var(--danger); }
 
         #map { height: 300px; width: 100%; border-radius: 8px; margin-top: 10px; }
 
-        /* صندوق الدردشة */
         .chat-container { display: flex; flex-direction: column; height: 350px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg); overflow: hidden; }
         .chat-messages { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .chat-bubble { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 11px; line-height: 1.4; position: relative; }
@@ -114,19 +121,15 @@ TYPE html>
         .chat-bubble.driver { background: #334155; color: white; align-self: flex-end; border-bottom-left-radius: 0; }
         .chat-input-area { display: flex; padding: 8px; background: var(--card-bg); border-top: 1px solid var(--border-color); gap: 6px; }
 
-        /* بطاقات لوحة الرحلات العامة */
         .load-post-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-        .load-post-media { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .load-post-media img, .load-post-media video { width: 100px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
 
     <div class="news-ticker">
-        <marquee scrollamount="5">🌟 أهلاً بك يا عماد في النظام المطور V52 Social Edition | تم تفعيل نظام ألقاب السائقين الـ 30 والتواصل المباشر 🚀</marquee>
+        <marquee scrollamount="5">🌟 أهلاً بك يا عماد في النظام المطور V52 Social Edition | تم تفعيل النظام المتكامل 🚀</marquee>
     </div>
 
-    <!-- شاشة قفل الخزنة / تسجيل الدخول -->
     <div id="lock-screen">
         <h3>🔐 بوابة دخول المؤسس والسائقين V52</h3>
         <p style="font-size: 12px; opacity: 0.8; margin-top: 4px; text-align:center;">أدخل رمز الإدارة أو رمز السائق للوصول الآمن</p>
@@ -139,14 +142,12 @@ TYPE html>
         </div>
     </div>
 
-    <!-- نافذة تسجيل حساب السائقين المستقلة -->
     <div id="driver-register-container">
         <div class="card" style="width: 100%; max-width: 400px; background: var(--card-bg);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h3 style="margin:0; color:var(--purple);">👨‍✈️ نافذة تسجيل حساب سائق جديد</h3>
                 <button onclick="closeDriverRegister()" class="btn-danger btn-sm" style="width:auto;">✕ إغلاق</button>
             </div>
-            <p style="font-size: 11px; opacity: 0.8; margin-bottom: 10px;">أدخل بياناتك الشخصية ورمز مرور سري خاص بك.</p>
             <form id="public-driver-form">
                 <input type="text" id="pub-drv-name" required placeholder="اسم السائق الرباعي">
                 <input type="tel" id="pub-drv-phone" required placeholder="رقم الهاتف / واتساب">
@@ -156,11 +157,551 @@ TYPE html>
         </div>
     </div>
 
-    <!-- نافذة حجز الزوار -->
     <div id="visitor-booking-container">
         <div class="card" style="width: 100%; max-width: 450px; background: var(--card-bg);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h3 style="margin:0; color:var(--accent);">📦 نافذة حجز رحلة للزوار والعملاء</h3>
                 <button onclick="closeVisitorBooking()" class="btn-danger btn-sm" style="width:auto;">✕ إغلاق</button>
             </div>
-            <
+            <form id="visitor-shipment-form">
+                <input type="text" id="vis-name" required placeholder="اسم العميل الرباعي">
+                <input type="tel" id="vis-phone" required placeholder="رقم الهاتف">
+                <input type="text" id="vis-address" required placeholder="عنوان التوصيل بالتفصيل">
+                <input type="text" id="vis-item" required placeholder="وصف الحمولة">
+                <input type="number" id="vis-price" required placeholder="الأجرة المتفق عليها (ج.م)">
+                <div>
+                    <button type="button" class="btn-warning btn-sm" onclick="captureVisitorGPS()">📍 تسجيل موقعي الحالي عبر GPS</button>
+                    <span id="vis-gps-status" style="font-size: 10px; opacity: 0.8; display:block; margin-top:2px;"></span>
+                </div>
+                <div style="margin-top: 8px;">
+                    <label style="font-size:10px; font-weight:bold;">📷 صورة المستند أو البضاعة:</label>
+                    <input type="file" id="vis-img" accept="image/*">
+                </div>
+                <button type="submit" class="btn-success" style="padding: 10px; margin-top: 10px;">حجز وإرسال تنبيه واتساب للإدارة 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <header>
+        <div>
+            <h2>Global Transport Hub V52</h2>
+            <small style="opacity: 0.8;" id="user-role-badge">لوحة تحكم المؤسس</small>
+        </div>
+        <div class="header-links">
+            <a href="drivers.html">🚚 الأسطول</a>
+            <a href="community.html">🌐 المجتمع</a>
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+            <button onclick="lockSystem()" class="btn-sm" style="background:var(--danger); color:#fff;">🔒 قفل النظام</button>
+            <button onclick="toggleDarkMode()" class="btn-sm" style="background:#475569; color:#fff;">🌙/☀️</button>
+            <span class="cloud-badge" id="cloud-status">جاري التحقق...</span>
+        </div>
+    </header>
+
+    <div id="license-alert" class="alert-banner"></div>
+
+    <input type="text" id="global-search" class="search-box" placeholder="🔍 بحث شامل في المنصة..." onkeyup="render()">
+
+    <div class="stats-grid" id="admin-stats">
+        <div class="stat-card"><h4>الشحنات</h4><p id="stat-shipments">0</p></div>
+        <div class="stat-card" style="border-right-color: var(--success);"><h4>الإيرادات</h4><p id="stat-revenue">0 ج.م</p></div>
+        <div class="stat-card" style="border-right-color: var(--purple);"><h4>صافي الأرباح</h4><p id="stat-net-profit">0 ج.م</p></div>
+        <div class="stat-card" style="border-right-color: var(--success);"><h4>الخزينة النقدية</h4><p id="stat-cash">0 ج.م</p></div>
+        <div class="stat-card" style="border-right-color: var(--danger);"><h4>الديون</h4><p id="stat-debts">0 ج.م</p></div>
+    </div>
+
+    <nav id="main-nav">
+        <button class="active" onclick="switchTab('shipments-tab', this)">📦 الشحنات</button>
+        <button onclick="switchTab('public-feed-tab', this)" style="background:var(--purple); color:#fff;">📢 لوحة الرحلات العامة</button>
+        <button onclick="switchTab('chat-tab', this)" style="background:var(--success); color:#fff;">💬 الدردشة الفورية</button>
+        <button onclick="switchTab('map-tab', this)">🗺️ الخريطة الحية</button>
+        <button onclick="switchTab('treasury-tab', this)">💵 الخزنة والنقدية</button>
+        <button onclick="switchTab('fleet-tab', this)">🚚 الأسطول والوثائق</button>
+        <button onclick="switchTab('drivers-tab', this)">👨‍✈️ السائقين وبوابتهم</button>
+        <button onclick="switchTab('expenses-tab', this)">⛽ المصروفات</button>
+        <button onclick="switchTab('crud-tab', this)" id="nav-crud-btn" style="background:var(--danger); color:white;">⚙️ لوحة التحكم (CRUD)</button>
+    </nav>
+
+    <!-- 1. الشحنات -->
+    <section id="shipments-tab" class="app-section active">
+        <div class="card" id="new-shipment-card">
+            <h3 id="form-title-heading">تسجيل رحلة جديدة وقرينة QR (للمؤسس)</h3>
+            <form id="shipment-form">
+                <input type="hidden" id="edit-shipment-id" value="">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <input type="text" id="ship-name" required placeholder="اسم العميل">
+                    <input type="tel" id="ship-phone" placeholder="رقم الهاتف (واتساب)">
+                </div>
+                <input type="text" id="ship-address" required placeholder="عنوان التوصيل">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <input type="text" id="ship-item" required placeholder="وصف الحمولة">
+                    <input type="number" id="ship-price" required placeholder="الأجرة (ج.م)">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <input type="number" id="ship-fuel-cost" placeholder="تكلفة الوقود (ج.م)">
+                    <input type="number" id="ship-extra-cost" placeholder="مصاريف أخرى (ج.م)">
+                </div>
+
+                <div>
+                    <label style="font-size:10px; font-weight:bold;">تعيين للسائق:</label>
+                    <select id="ship-assigned-driver">
+                        <option value="">-- بدون تعيين (عام) --</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <button type="button" class="btn-warning btn-sm" onclick="captureGPS()">📍 تسجيل موقع GPS</button>
+                    <span id="gps-status" style="font-size: 10px; opacity: 0.8;"></span>
+                </div>
+
+                <div>
+                    <label style="font-size:10px; font-weight:bold;">📷 صورة المستند:</label>
+                    <input type="file" id="ship-img" accept="image/*">
+                </div>
+
+                <div>
+                    <label style="font-size:10px; font-weight:bold;">توقيع المستلم الرقمي:</label>
+                    <canvas id="signature-pad"></canvas>
+                    <button type="button" onclick="clearSignature()" class="btn-sm" style="background:#64748b; color:#fff;">مسح التوقيع</button>
+                </div>
+                <button type="submit" class="btn-main" style="padding: 10px; margin-top:8px;">حفظ الرحلة وتوليد QR وإرسال واتساب 💾</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>سجل الرحلات المباشر</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>العميل</th>
+                            <th>الحمولة</th>
+                            <th>السائق المعين</th>
+                            <th>الأجرة</th>
+                            <th>صافي الربح</th>
+                            <th>الحالة</th>
+                            <th>إدارة وإشعارات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipments-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. لوحة الرحلات العامة -->
+    <section id="public-feed-tab" class="app-section">
+        <div class="card" style="border: 2px solid var(--purple);">
+            <h3 style="color: var(--purple);">📢 لوحة الإعلانات ونشر الرحلات العامة</h3>
+            <div id="admin-post-form-card" style="background: var(--bg); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                <h4 style="font-size: 12px; margin-bottom: 6px;">➕ نشر رحلة أو إعلان جديد</h4>
+                <form id="public-post-form">
+                    <input type="text" id="post-title" required placeholder="عنوان الرحلة / الوجهة">
+                    <textarea id="post-desc" rows="2" required placeholder="تفاصيل الحمولة والأجرة..."></textarea>
+                    <button type="submit" class="btn-success" style="padding: 8px; margin-top: 6px;">نشر في اللوحة العامة 🚀</button>
+                </form>
+            </div>
+            <div id="public-posts-feed"></div>
+        </div>
+    </section>
+
+    <!-- 3. الدردشة -->
+    <section id="chat-tab" class="app-section">
+        <div class="card" style="border: 2px solid var(--success);">
+            <h3 style="color: var(--success);">💬 غرفة المحادثة والتواصل الفوري</h3>
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages-list"></div>
+                <form id="chat-form" class="chat-input-area">
+                    <input type="text" id="chat-input-text" required placeholder="اكتب رسالتك هنا..." style="margin-bottom:0; flex:1;">
+                    <button type="submit" class="btn-success" style="width: 80px; margin-bottom:0;">إرسال ✈️</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. الخريطة -->
+    <section id="map-tab" class="app-section">
+        <div class="card">
+            <h3>🗺️ خريطة نقاط التسليم المباشرة</h3>
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <!-- 5. الخزنة -->
+    <section id="treasury-tab" class="app-section">
+        <div class="card">
+            <h3>إدارة حركة النقدية والمقبوضات</h3>
+            <form id="cash-form">
+                <select id="cash-type">
+                    <option value="in">إيداع / تحصيل نقدي (+)</option>
+                    <option value="out">سحب / مصروفات الخزنة (-)</option>
+                </select>
+                <input type="number" id="cash-amount" placeholder="المبلغ (ج.م)" required>
+                <input type="text" id="cash-desc" placeholder="البيان / السبب" required>
+                <button type="submit" class="btn-success">تسجيل حركة نقدية</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>سجل حركة الخزنة</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>النوع</th><th>المبلغ</th><th>البيان</th><th>التاريخ</th></tr></thead>
+                    <tbody id="treasury-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. الأسطول -->
+    <section id="fleet-tab" class="app-section">
+        <div class="card">
+            <h3>إضافة مركبة وجدولة الصيانة</h3>
+            <form id="truck-form">
+                <input type="text" id="truck-num" placeholder="رقم السيارة/الشاحنة" required>
+                <input type="text" id="driver-name" placeholder="اسم السائق المسؤول" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <input type="number" id="truck-km" placeholder="عداد KM" required>
+                    <input type="number" id="truck-next-oil" placeholder="غيّار الزيت القادم KM" required>
+                </div>
+                <label style="font-size: 11px;">تاريخ انتهاء الرخصة:</label>
+                <input type="date" id="truck-expiry" required>
+                <button type="submit" class="btn-main">حفظ المركبة</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>حالة المركبات والتراخيص</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>المركبة</th><th>السائق</th><th>KM</th><th>الزيت</th><th>الرخصة</th></tr></thead>
+                    <tbody id="trucks-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. السائقين -->
+    <section id="drivers-tab" class="app-section">
+        <div class="card">
+            <h3>👨‍✈️ تسجيل سائق جديد وبروفايل التشغيل</h3>
+            <form id="driver-profile-form">
+                <input type="text" id="drv-fullname" placeholder="اسم السائق الرباعي" required>
+                <input type="tel" id="drv-phone" placeholder="رقم الهاتف / واتساب" required>
+                <input type="password" id="drv-pin" placeholder="رمز المرور الخاص بالسائق" required>
+                <button type="submit" class="btn-main">إضافة السائق للنظام</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>قائمة السائقين المسجلين</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>السائق</th><th>الهاتف</th><th>رمز الدخول</th><th>إدارة</th></tr></thead>
+                    <tbody id="drivers-list-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. المصروفات -->
+    <section id="expenses-tab" class="app-section">
+        <div class="card">
+            <h3>تسجيل المصروفات التشغيلية</h3>
+            <form id="expense-form">
+                <input type="text" id="exp-title" placeholder="بيان المصروف" required>
+                <input type="number" id="exp-amount" placeholder="المبلغ (ج.م)" required>
+                <button type="submit" class="btn-danger">تسجيل المصروف</button>
+            </form>
+        </div>
+        <div class="card">
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>البيان</th><th>المبلغ</th><th>التاريخ</th></tr></thead>
+                    <tbody id="expenses-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. CRUD -->
+    <section id="crud-tab" class="app-section">
+        <div class="card" style="border: 2px solid var(--danger);">
+            <h3 style="color: var(--danger);">⚙️ لوحة التحكم الإدارية (CRUD Dashboard)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr id="crud-table-headers"></tr>
+                    </thead>
+                    <tbody id="crud-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let storedPin = localStorage.getItem('app_pin') || '01036';
+        let currentUserRole = 'admin'; 
+        let loggedInDriverName = '';
+        let visitorGPS = '';
+        let visitorImgBase64 = '';
+        let currentGPS = '';
+        let uploadedImgBase64 = '';
+
+        let appData = JSON.parse(localStorage.getItem('transportAppV52')) || { 
+            shipments: [], trucks: [], customers: [], expenses: [], treasury: [], docs: [], drivers: [], chat: [], posts: [] 
+        };
+
+        function unlockApp() {
+            if (document.getElementById('pin-input').value === storedPin) {
+                currentUserRole = 'admin';
+                loggedInDriverName = '';
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('user-role-badge').innerText = 'لوحة تحكم المؤسس';
+                setAdminUIMode();
+                render();
+            } else alert('رمز PIN غير صحيح!');
+        }
+
+        function driverLogin() {
+            const pin = document.getElementById('pin-input').value;
+            const driver = appData.drivers.find(d => d.pin === pin);
+            if (driver) {
+                currentUserRole = 'driver';
+                loggedInDriverName = driver.name;
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('user-role-badge').innerText = `بروفايل السائق: ${driver.name}`;
+                setDriverUIMode();
+                render();
+            } else {
+                alert('رمز السائق غير صحيح!');
+            }
+        }
+
+        function openVisitorBooking() { document.getElementById('visitor-booking-container').style.display = 'flex'; }
+        function closeVisitorBooking() { document.getElementById('visitor-booking-container').style.display = 'none'; }
+        function openDriverRegister() { document.getElementById('driver-register-container').style.display = 'flex'; }
+        function closeDriverRegister() { document.getElementById('driver-register-container').style.display = 'none'; }
+        function lockSystem() { document.getElementById('lock-screen').style.display = 'flex'; document.getElementById('pin-input').value = ''; }
+
+        function setAdminUIMode() {
+            document.getElementById('new-shipment-card').style.display = 'block';
+            document.getElementById('admin-stats').style.display = 'grid';
+            document.getElementById('admin-post-form-card').style.display = 'block';
+            document.getElementById('nav-crud-btn').style.display = 'block';
+        }
+
+        function setDriverUIMode() {
+            document.getElementById('new-shipment-card').style.display = 'none';
+            document.getElementById('admin-stats').style.display = 'none';
+            document.getElementById('admin-post-form-card').style.display = 'none';
+            document.getElementById('nav-crud-btn').style.display = 'none';
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('dark_mode', document.body.classList.contains('dark-mode'));
+        }
+        if (localStorage.getItem('dark_mode') === 'true') document.body.classList.add('dark-mode');
+
+        function saveDataAll() {
+            localStorage.setItem('transportAppV52', JSON.stringify(appData));
+            updateCloudStatus(true);
+        }
+
+        function updateCloudStatus(on) {
+            const b = document.getElementById('cloud-status');
+            if (b) { b.innerText = on ? 'متصل ☁️' : 'مكاني 📱'; b.style.background = on ? 'var(--success)' : 'var(--warning)'; }
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function captureGPS() {
+            if (navigator.geolocation) {
+                document.getElementById('gps-status').innerText = 'جاري التحديد...';
+                navigator.geolocation.getCurrentPosition(pos => {
+                    currentGPS = `${pos.coords.latitude},${pos.coords.longitude}`;
+                    document.getElementById('gps-status').innerText = 'تم التحديد ✅';
+                }, () => { alert('تعذر الحصول على الموقع الجغرافي'); });
+            }
+        }
+
+        function captureVisitorGPS() {
+            if (navigator.geolocation) {
+                document.getElementById('vis-gps-status').innerText = 'جاري تحديد موقعك...';
+                navigator.geolocation.getCurrentPosition(pos => {
+                    visitorGPS = `${pos.coords.latitude},${pos.coords.longitude}`;
+                    document.getElementById('vis-gps-status').innerText = 'تم التحديد ✅';
+                }, () => { alert('تعذر الحصول على الموقع'); });
+            }
+        }
+
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        let isDrawing = false;
+        if (canvas) {
+            canvas.width = canvas.offsetWidth || 300; canvas.height = 80;
+            canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stopDrawing);
+        }
+        function startDrawing(e) { isDrawing = true; if(!ctx) return; ctx.beginPath(); const rect = canvas.getBoundingClientRect(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top); }
+        function draw(e) { if (!isDrawing || !ctx) return; const rect = canvas.getBoundingClientRect(); ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke(); }
+        function stopDrawing() { isDrawing = false; }
+        function clearSignature() { if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        document.getElementById('public-driver-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            appData.drivers.push({
+                id: Date.now(),
+                name: document.getElementById('pub-drv-name').value,
+                phone: document.getElementById('pub-drv-phone').value,
+                pin: document.getElementById('pub-drv-pin').value
+            });
+            saveDataAll(); render();
+            this.reset();
+            closeDriverRegister();
+            alert('تم تسجيل الحساب بنجاح!');
+        });
+
+        document.getElementById('visitor-shipment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const price = parseFloat(document.getElementById('vis-price').value) || 0;
+            appData.shipments.unshift({
+                id: Date.now(),
+                name: document.getElementById('vis-name').value,
+                phone: document.getElementById('vis-phone').value,
+                address: document.getElementById('vis-address').value,
+                item: document.getElementById('vis-item').value,
+                price: price, netProfit: price,
+                status: '⏳ قيد الانتظار'
+            });
+            saveDataAll(); render();
+            this.reset();
+            closeVisitorBooking();
+            alert('تم طلب الرحلة بنجاح!');
+        });
+
+        document.getElementById('shipment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const price = parseFloat(document.getElementById('ship-price').value) || 0;
+            const fuelCost = parseFloat(document.getElementById('ship-fuel-cost').value) || 0;
+            const extraCost = parseFloat(document.getElementById('ship-extra-cost').value) || 0;
+            const netProfit = price - (fuelCost + extraCost);
+
+            appData.shipments.unshift({
+                id: Date.now(),
+                name: document.getElementById('ship-name').value,
+                phone: document.getElementById('ship-phone').value,
+                address: document.getElementById('ship-address').value,
+                item: document.getElementById('ship-item').value,
+                price: price, fuelCost: fuelCost, extraCost: extraCost, netProfit: netProfit,
+                assignedDriver: document.getElementById('ship-assigned-driver').value,
+                status: '🚚 قيد التوصيل'
+            });
+
+            saveDataAll(); render(); this.reset();
+            alert('تم تسجيل الرحلة بنجاح!');
+        });
+
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const textInput = document.getElementById('chat-input-text');
+            appData.chat.push({
+                id: Date.now(),
+                sender: currentUserRole === 'admin' ? 'المؤسس' : loggedInDriverName,
+                text: textInput.value
+            });
+            saveDataAll(); render();
+            textInput.value = '';
+        });
+
+        document.getElementById('driver-profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            appData.drivers.push({
+                id: Date.now(),
+                name: document.getElementById('drv-fullname').value,
+                phone: document.getElementById('drv-phone').value,
+                pin: document.getElementById('drv-pin').value
+            });
+            saveDataAll(); render(); this.reset();
+            alert('تم إضافة السائق بنجاح!');
+        });
+
+        function render() {
+            const shipList = document.getElementById('shipments-list');
+            if (shipList) {
+                shipList.innerHTML = '';
+                appData.shipments.forEach(s => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${s.name}</td>
+                        <td>${s.item}</td>
+                        <td>${s.assignedDriver || 'غير محدد'}</td>
+                        <td>${s.price} ج.م</td>
+                        <td>${s.netProfit || s.price} ج.م</td>
+                        <td>${s.status}</td>
+                        <td><button class="btn-danger btn-sm" onclick="deleteShipment(${s.id})">حذف</button></td>
+                    `;
+                    shipList.appendChild(row);
+                });
+            }
+
+            const chatList = document.getElementById('chat-messages-list');
+            if (chatList) {
+                chatList.innerHTML = '';
+                appData.chat.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = `chat-bubble ${c.sender === 'المؤسس' ? 'admin' : 'driver'}`;
+                    div.innerHTML = `<b>${c.sender}:</b> ${c.text}`;
+                    chatList.appendChild(div);
+                });
+            }
+
+            const driverSelect = document.getElementById('ship-assigned-driver');
+            if (driverSelect) {
+                driverSelect.innerHTML = '<option value="">-- بدون تعيين (عام) --</option>';
+                appData.drivers.forEach(d => {
+                    driverSelect.innerHTML += `<option value="${d.name}">${d.name}</option>`;
+                });
+            }
+
+            const driversTable = document.getElementById('drivers-list-table');
+            if (driversTable) {
+                driversTable.innerHTML = '';
+                appData.drivers.forEach(d => {
+                    driversTable.innerHTML += `
+                        <tr>
+                            <td>${d.name}</td>
+                            <td>${d.phone}</td>
+                            <td>${d.pin}</td>
+                            <td><button class="btn-danger btn-sm" onclick="deleteDriverRecord(${d.id})">حذف</button></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('stat-shipments').innerText = appData.shipments.length;
+            let rev = appData.shipments.reduce((acc, curr) => acc + (curr.price || 0), 0);
+            let net = appData.shipments.reduce((acc, curr) => acc + (curr.netProfit || curr.price || 0), 0);
+            document.getElementById('stat-revenue').innerText = rev + ' ج.م';
+            document.getElementById('stat-net-profit').innerText = net + ' ج.م';
+        }
+
+        function deleteShipment(id) {
+            appData.shipments = appData.shipments.filter(s => s.id !== id);
+            saveDataAll(); render();
+        }
+
+        function deleteDriverRecord(id) {
+            appData.drivers = appData.drivers.filter(d => d.id !== id);
+            saveDataAll(); render();
+        }
+
+        window.onload = function() {
+            render();
+        };
+    </script>
+</body>
+</html>
