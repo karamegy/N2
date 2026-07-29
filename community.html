@@ -1314,46 +1314,642 @@
                     <option value="حالات الطرق">🚨 حالة طريق</option>
                     <option value="عروض النقل">📦 عرض نقل / بضائع</option>
                     <option value="صيانة وورش">🛠️ صيانة وورش</option>
-                    <option value="استفسارات">❓ استفسار عام</option>
-                </select>
-                <button class="post-btn" onclick="addNewPost()">نشر الحالة 🚀</button>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مجتمع السائقين وشات الأسطول - Global Transport Hub</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #050505;
+            --primary-color: #1877f2;
+            --primary-hover: #166fe5;
+            --success-color: #2e7d32;
+            --danger-color: #e41e3f;
+            --danger-hover: #c51632;
+            --border-color: #ced0d4;
+            --secondary-text: #65676b;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-color: #e4e6eb;
+            --primary-color: #2d88ff;
+            --primary-hover: #1a77f2;
+            --success-color: #4caf50;
+            --danger-color: #ff334b;
+            --danger-hover: #e0283f;
+            --border-color: #393a3b;
+            --secondary-text: #b0b3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links a, .nav-links button {
+            text-decoration: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 15px auto;
+            padding: 0 10px;
+        }
+
+        /* نظام التبويبات (المجتمع vs غرفة الشات) */
+        .app-tabs {
+            display: flex;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--secondary-text);
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .categories-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            white-space: nowrap;
+        }
+
+        .cat-chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            color: var(--text-color);
+        }
+
+        .cat-chip.active, .cat-chip:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .sos-container {
+            margin-bottom: 15px;
+        }
+
+        .sos-btn {
+            width: 100%;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(228, 30, 63, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .create-post {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .create-post textarea {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            resize: none;
+            font-size: 15px;
+            outline: none;
+            padding: 5px;
+            min-height: 70px;
+        }
+
+        .post-options-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .attachment-tools {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .file-upload-label {
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--secondary-text);
+        }
+
+        .file-upload-label:hover {
+            color: var(--primary-color);
+        }
+
+        .select-category {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .post-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .post-card.sos-card {
+            border: 2px solid var(--danger-color);
+            background-color: rgba(228, 30, 63, 0.03);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            justify-content: space-between;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .author-name {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .post-time {
+            font-size: 11px;
+            color: var(--secondary-text);
+        }
+
+        .header-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .badge-tag {
+            font-size: 11px;
+            background: var(--bg-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--secondary-text);
+            border: 1px solid var(--border-color);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .post-body {
+            font-size: 15px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .media-preview {
+            margin-bottom: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 300px;
+            display: flex;
+            justify-content: center;
+            background: #000;
+        }
+
+        .media-preview img, .media-preview video {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .invoice-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+        .mention {
+            color: var(--primary-color);
+            font-weight: bold;
+            background: rgba(24, 119, 242, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px 0;
+            margin-bottom: 10px;
+        }
+
+        .action-option {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .action-option:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        .comments-section {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .comments-section.open {
+            display: block;
+        }
+
+        .comment-box {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .comment-box input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            color: var(--text-color);
+            outline: none;
+            font-size: 13px;
+        }
+
+        .comment-box button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .comment-item {
+            background: var(--bg-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 2px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        /* تنسيق صفحة الشات الجماعي الكاملة */
+        .chat-room-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chat-header-bar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-color);
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            position: relative;
+        }
+
+        .chat-bubble.my-msg {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .chat-bubble-author {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: var(--primary-color);
+        }
+
+        .chat-bubble.my-msg .chat-bubble-author {
+            color: #e0e0e0;
+        }
+
+        .chat-input-area {
+            padding: 10px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 20px;
+            color: var(--text-color);
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <div class="logo">🌐 شبكة النقل والشات</div>
+        <div class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <button onclick="toggleTheme()">🌓</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- تبديل الأقسام (المجتمع أو غرفة الشات) -->
+        <div class="app-tabs">
+            <button class="tab-btn active" onclick="switchTab('community', this)">📢 مجتمع السائقين والحالات</button>
+            <button class="tab-btn" onclick="switchTab('chat', this)">💬 شات الأسطول المباشر</button>
+        </div>
+
+        <!-- قسم المجتمع -->
+        <div id="communityTab" class="tab-content active">
+            <div class="sos-container">
+                <button class="sos-btn" onclick="sendSOSAlert()">🚨 نداء طوارئ واستغاثة فوري (SOS)</button>
+            </div>
+
+            <div class="categories-bar">
+                <div class="cat-chip active" onclick="filterCategory('الكل', this)">الكل</div>
+                <div class="cat-chip" onclick="filterCategory('حالات الطرق', this)">🚨 حالات الطرق</div>
+                <div class="cat-chip" onclick="filterCategory('عروض النقل', this)">📦 عروض ونقل</div>
+                <div class="cat-chip" onclick="filterCategory('صيانة وورش', this)">🛠️ صيانة وقطع غيار</div>
+                <div class="cat-chip" onclick="filterCategory('استفسارات', this)">❓ استفسارات عامة</div>
+            </div>
+
+            <div class="create-post">
+                <textarea id="postText" placeholder="اكتب حالتك أو اذكر زميلاً (مثلاً: @محمود سعيد)..."></textarea>
+                <div class="post-options-bar">
+                    <div class="attachment-tools">
+                        <label class="file-upload-label" title="رفع صورة أو فيديو">
+                            📷<input type="file" id="postMedia" accept="image/*,video/*" style="display:none;">
+                        </label>
+                        <label class="file-upload-label" title="رفع فاتورة أو مستند">
+                            📄<input type="file" id="postInvoice" accept=".pdf,image/*" style="display:none;">
+                        </label>
+                    </div>
+                    <select id="postCategory" class="select-category">
+                        <option value="حالات الطرق">🚨 حالة طريق</option>
+                        <option value="عروض النقل">📦 عرض نقل / بضائع</option>
+                        <option value="صيانة وورش">🛠️ صيانة وورش</option>
+                        <option value="استفسارات">❓ استفسار عام</option>
+                    </select>
+                    <button class="post-btn" onclick="addNewPost()">نشر 🚀</button>
+                </div>
+            </div>
+
+            <div id="postsFeed">
+                <div class="post-card" data-category="حالات الطرق">
+                    <div class="post-header">
+                        <div class="author-info">
+                            <div class="avatar">ع</div>
+                            <div>
+                                <div class="author-name">عماد (مؤسس الأسطول)</div>
+                                <div class="post-time">منذ ساعة</div>
+                            </div>
+                        </div>
+                        <div class="header-right">
+                            <div class="badge-tag">🚨 حالات الطرق</div>
+                            <button class="delete-btn" onclick="deletePost(this)">×</button>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        طريق السخنة ممتاز اليوم، انتبه يا <span class="mention">@محمود سعيد</span> عند الوصول للبوابة. 🚚💨
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">14</span>)</button>
+                        <button class="action-option" onclick="toggleComments(this)">💬 تعليق (<span class="comment-count">1</span>)</button>
+                    </div>
+                    <div class="comments-section open">
+                        <div class="comment-list">
+                            <div class="comment-item">
+                                <div class="comment-author">محمود سعيد</div>
+                                علم يا هندسة، جاري التحرك.
+                            </div>
+                        </div>
+                        <div class="comment-box">
+                            <input type="text" placeholder="اكتب تعليقاً أو اذكر زميلاً...">
+                            <button onclick="addComment(this)">إرسال</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="postsFeed">
-            <div class="post-card" data-category="حالات الطرق">
-                <div class="post-header">
-                    <div class="author-info">
-                        <div class="avatar">ع</div>
-                        <div>
-                            <div class="author-name">عماد (مؤسس الأسطول)</div>
-                            <div class="post-time">منذ ساعة</div>
-                        </div>
+        <!-- قسم غرفة الشات الكاملة -->
+        <div id="chatTab" class="tab-content">
+            <div class="chat-room-card">
+                <div class="chat-header-bar">
+                    <span>🟢 غرفة شات السائقين المباشرة</span>
+                    <span style="font-size: 12px; background: rgba(0,0,0,0.2); padding: 3px 8px; border-radius: 6px;">متصل</span>
+                </div>
+                <div class="chat-messages-container" id="chatMessages">
+                    <div class="chat-bubble">
+                        <div class="chat-bubble-author">محمود سعيد</div>
+                        أهلاً بالجميع، هل من أخبار عن كمين السخنة اليوم؟
                     </div>
-                    <div class="header-right">
-                        <div class="badge-tag">🚨 حالات الطرق</div>
-                        <button class="delete-btn" onclick="deletePost(this)" title="حذف المنشور">×</button>
+                    <div class="chat-bubble my-msg">
+                        <div class="chat-bubble-author">عماد (مؤسس الأسطول)</div>
+                        الطريق ممهد وآمن يا رجالة، توكلوا على الله.
                     </div>
                 </div>
-                <div class="post-body">
-                    طريق السخنة ممهد وحركة مرور الربع نقل ممتازة اليوم. بالتوفيق لكل السائقين على الطرق السريعة! 🚚💨
-                </div>
-                <div class="post-actions">
-                    <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">14</span>)</button>
-                    <button class="action-option" onclick="toggleComments(this)">💬 تعليق (<span class="comment-count">1</span>)</button>
-                    <button class="action-option whatsapp" onclick="shareWhatsApp(this)">💚 مشاركة واتساب</button>
-                </div>
-                <div class="comments-section open">
-                    <div class="comment-list">
-                        <div class="comment-item">
-                            <div class="comment-author">محمود سعيد</div>
-                            تسلم يا هندسة على المتابعة الدائمة.
-                        </div>
-                    </div>
-                    <div class="comment-box">
-                        <input type="text" placeholder="اكتب تعليقاً...">
-                        <button onclick="addComment(this)">إرسال</button>
-                    </div>
+                <div class="chat-input-area">
+                    <label class="file-upload-label" title="إرسال مرفق بالشات">
+                        📎<input type="file" id="chatFile" accept="image/*,video/*,.pdf" style="display:none;" onchange="sendChatAttachment(this)">
+                    </label>
+                    <input type="text" id="chatInput" placeholder="اكتب رسالتك أو استخدم @ للإشارة..." onkeypress="checkChatEnter(event)">
+                    <button class="chat-send-btn" onclick="sendChatMessage()">إرسال</button>
                 </div>
             </div>
         </div>
@@ -1370,13 +1966,46 @@
 
         window.onload = function() {
             const savedTheme = localStorage.getItem("community_theme") || "light";
-            document.body.setAttribute("data-theme", savedTheme);
+            bodyTheme = document.body.setAttribute("data-theme", savedTheme);
         };
 
+        function switchTab(tabName, btn) {
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById(tabName + "Tab").classList.add("active");
+        }
+
+        // تنسيق الإشارات (@Mentions) و الروابط في النصوص
+        function formatMentions(text) {
+            let safeText = escapeHtml(text);
+            return safeText.replace(/@([أ-يa-zA-Z\s]+)/g, '<span class="mention">@$1</span>');
+        }
+
         function addNewPost() {
-            const text = document.getElementById("postText").value;
+            const textInput = document.getElementById("postText");
             const category = document.getElementById("postCategory").value;
-            if(text.trim() === "") return;
+            const mediaInput = document.getElementById("postMedia");
+            const invoiceInput = document.getElementById("postInvoice");
+
+            if(textInput.value.trim() === "" && mediaInput.files.length === 0 && invoiceInput.files.length === 0) return;
+
+            let mediaHTML = "";
+            if(mediaInput.files && mediaInput.files[0]) {
+                const file = mediaInput.files[0];
+                const fileURL = URL.createObjectURL(file);
+                if(file.type.startsWith("video")) {
+                    mediaHTML = `<div class="media-preview"><video controls src="${fileURL}"></video></div>`;
+                } else {
+                    mediaHTML = `<div class="media-preview"><img src="${fileURL}" alt="صورة مرفقة"></div>`;
+                }
+            }
+
+            let invoiceHTML = "";
+            if(invoiceInput.files && invoiceInput.files[0]) {
+                const file = invoiceInput.files[0];
+                invoiceHTML = `<a href="#" class="invoice-tag">📄 مستند / فاتورة مرفقة: ${file.name}</a><br>`;
+            }
 
             const feed = document.getElementById("postsFeed");
             const newCard = document.createElement("div");
@@ -1393,14 +2022,15 @@
                     </div>
                     <div class="header-right">
                         <div class="badge-tag">${category}</div>
-                        <button class="delete-btn" onclick="deletePost(this)" title="حذف المنشور">×</button>
+                        <button class="delete-btn" onclick="deletePost(this)">×</button>
                     </div>
                 </div>
-                <div class="post-body">${escapeHtml(text)}</div>
+                <div class="post-body">${formatMentions(textInput.value)}</div>
+                ${mediaHTML}
+                ${invoiceHTML}
                 <div class="post-actions">
                     <button class="action-option" onclick="likePost(this)">👍 إعجاب (<span class="like-count">0</span>)</button>
                     <button class="action-option" onclick="toggleComments(this)">💬 تعليق (<span class="comment-count">0</span>)</button>
-                    <button class="action-option whatsapp" onclick="shareWhatsApp(this)">💚 مشاركة واتساب</button>
                 </div>
                 <div class="comments-section">
                     <div class="comment-list"></div>
@@ -1412,12 +2042,13 @@
             `;
             
             feed.prepend(newCard);
-            document.getElementById("postText").value = "";
+            textInput.value = "";
+            mediaInput.value = "";
+            invoiceInput.value = "";
         }
 
-        // دالة إرسال نداء طوارئ فوري SOS
         function sendSOSAlert() {
-            const details = prompt("أدخل تفاصيل الطوارئ (مثلاً: عطل بالمحرك، توقف مفاجئ على طريق السخنة، نحتاج مساعدة):");
+            const details = prompt("أدخل تفاصيل الطوارئ:");
             if(!details || details.trim() === "") return;
 
             const feed = document.getElementById("postsFeed");
@@ -1430,31 +2061,29 @@
                         <div class="avatar">🚨</div>
                         <div>
                             <div class="author-name" style="color: var(--danger-color);">نداء استغاثة طارئ (SOS)</div>
-                            <div class="post-time">الآن - عاجل جداً</div>
+                            <div class="post-time">الآن - عاجل</div>
                         </div>
                     </div>
                     <div class="header-right">
                         <div class="badge-tag">🚨 طوارئ</div>
-                        <button class="delete-btn" onclick="deletePost(this)" title="حذف المنشور">×</button>
+                        <button class="delete-btn" onclick="deletePost(this)">×</button>
                     </div>
                 </div>
                 <div class="post-body" style="font-weight: bold;">
-                    ⚠️ تنبيه عاجل من الطريق: ${escapeHtml(details)}
+                    ⚠️ تنبيه عاجل: ${formatMentions(details)}
                 </div>
                 <div class="post-actions">
                     <button class="action-option" onclick="likePost(this)">👍 دعم (<span class="like-count">0</span>)</button>
-                    <button class="action-option" onclick="toggleComments(this)">💬 استجابة الزملاء (<span class="comment-count">0</span>)</button>
-                    <button class="action-option whatsapp" onclick="shareWhatsApp(this)">💚 إرسال للواتساب</button>
+                    <button class="action-option" onclick="toggleComments(this)">💬 الاستجابات (<span class="comment-count">0</span>)</button>
                 </div>
                 <div class="comments-section open">
                     <div class="comment-list"></div>
                     <div class="comment-box">
-                        <input type="text" placeholder="اكتب عرض مساعدة أو رد...">
+                        <input type="text" placeholder="اكتب عرض مساعدة...">
                         <button onclick="addComment(this)">إرسال</button>
                     </div>
                 </div>
             `;
-            
             feed.prepend(newCard);
         }
 
@@ -1466,14 +2095,12 @@
 
         function toggleComments(btn) {
             const card = btn.closest(".post-card");
-            const section = card.querySelector(".comments-section");
-            section.classList.toggle("open");
+            card.querySelector(".comments-section").classList.toggle("open");
         }
 
         function addComment(btn) {
             const input = btn.previousElementSibling;
-            const text = input.value;
-            if(text.trim() === "") return;
+            if(input.value.trim() === "") return;
 
             const card = btn.closest(".post-card");
             const list = card.querySelector(".comment-list");
@@ -1481,7 +2108,7 @@
 
             const item = document.createElement("div");
             item.className = "comment-item";
-            item.innerHTML = `<div class="comment-author">عماد (مؤسس الأسطول)</div>${escapeHtml(text)}`;
+            item.innerHTML = `<div class="comment-author">عماد (مؤسس الأسطول)</div>${formatMentions(input.value)}`;
             list.appendChild(item);
 
             countSpan.innerText = parseInt(countSpan.innerText) + 1;
@@ -1489,25 +2116,52 @@
         }
 
         function deletePost(btn) {
-            if(confirm("هل أنت متأكد من حذف هذا المنشور؟")) {
-                const card = btn.closest(".post-card");
-                card.remove();
+            if(confirm("هل أنت متأكد من الحذف؟")) {
+                btn.closest(".post-card").remove();
             }
         }
 
-        function shareWhatsApp(btn) {
-            const card = btn.closest(".post-card");
-            const bodyText = card.querySelector(".post-body").innerText;
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent("تنبيه عاجل من أسطول النقل:\n" + bodyText)}`;
-            window.open(url, '_blank');
+        // وظائف الشات الجماعي
+        function sendChatMessage() {
+            const input = document.getElementById("chatInput");
+            if(input.value.trim() === "") return;
+
+            const container = document.getElementById("chatMessages");
+            const bubble = document.createElement("div");
+            bubble.className = "chat-bubble my-msg";
+            bubble.innerHTML = `
+                <div class="chat-bubble-author">عماد (مؤسس الأسطول)</div>
+                ${formatMentions(input.value)}
+            `;
+            container.appendChild(bubble);
+            input.value = "";
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function checkChatEnter(e) {
+            if(e.key === "Enter") sendChatMessage();
+        }
+
+        function sendChatAttachment(input) {
+            if(input.files && input.files[0]) {
+                const file = input.files[0];
+                const container = document.getElementById("chatMessages");
+                const bubble = document.createElement("div");
+                bubble.className = "chat-bubble my-msg";
+                bubble.innerHTML = `
+                    <div class="chat-bubble-author">عماد (مؤسس الأسطول)</div>
+                    📎 تم إرسال مرفق: ${file.name}
+                `;
+                container.appendChild(bubble);
+                container.scrollTop = container.scrollHeight;
+            }
         }
 
         function filterCategory(cat, chip) {
             document.querySelectorAll(".cat-chip").forEach(c => c.classList.remove("active"));
             chip.classList.add("active");
 
-            const posts = document.querySelectorAll(".post-card");
-            posts.forEach(post => {
+            document.querySelectorAll(".post-card").forEach(post => {
                 const postCat = post.getAttribute("data-category");
                 if(cat === "الكل" || postCat === cat) {
                     post.style.display = "block";
@@ -1523,4 +2177,3 @@
     </script>
 </body>
 </html>
-
