@@ -1234,6 +1234,406 @@
     </script>
 </body>
 </html>
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a, .nav-links button {
+            text-decoration: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 15px auto;
+            padding: 0 10px;
+        }
+
+        .card-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .post-input {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--text-color);
+            outline: none;
+            resize: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .select-category {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-tab {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .filter-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .feed-item {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .feed-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .feed-header {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feed-time {
+            font-size: 11px;
+            color: var(--secondary-text);
+            font-weight: normal;
+        }
+
+        .badge {
+            background: rgba(24, 119, 242, 0.1);
+            color: var(--primary-color);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .feed-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .feed-footer-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--secondary-text);
+            border-top: 1px solid var(--border-color);
+            padding-top: 8px;
+        }
+
+        .action-link {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--secondary-text);
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-link:hover {
+            color: var(--primary-color);
+        }
+
+        .comments-section {
+            margin-top: 10px;
+            background: var(--bg-color);
+            padding: 8px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .comments-list {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .comment-input-box {
+            display: flex;
+            gap: 5px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .comment-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <div class="logo">🌐 مجتمع السائقين</div>
+        <div class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="world.html">عالم السائقين</a>
+            <button onclick="toggleTheme()">🌓</button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- صندوق النشر -->
+        <div class="card-box">
+            <textarea id="postText" class="post-input" rows="3" placeholder="أكتب حالة الطريق، تنبيه للزملاء، أو طلب مساعدة..."></textarea>
+            <div class="post-actions">
+                <select id="postCategory" class="select-category">
+                    <option value="حالات الطرق">🚨 حالات الطرق</option>
+                    <option value="عروض ونقل">📦 عروض ونقل</option>
+                    <option value="صيانة وورش">🛠️ صيانة وورش</option>
+                </select>
+                <button class="submit-btn" onclick="publishCommunityPost()">🚀 نشر الحالة</button>
+            </div>
+        </div>
+
+        <!-- أزرار التصفية -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterCommunity('الكل', this)">الكل</button>
+            <button class="filter-tab" onclick="filterCommunity('حالات الطرق', this)">🚨 حالات الطرق</button>
+            <button class="filter-tab" onclick="filterCommunity('عروض ونقل', this)">📦 عروض ونقل</button>
+            <button class="filter-tab" onclick="filterCommunity('صيانة وورش', this)">🛠️ صيانة وورش</button>
+        </div>
+
+        <!-- حائط المنشورات -->
+        <div class="card-box">
+            <div id="communityFeed">
+                <div class="feed-item" data-category="حالات الطرق">
+                    <div class="feed-header">
+                        <span>عماد (مؤسس الأسطول)</span>
+                        <span class="badge">حالات الطرق</span>
+                    </div>
+                    <div class="feed-time">منذ ساعة</div>
+                    <div class="feed-text">طريق السخنة ممهد وحركة مرور الربع نقل ممتازة اليوم. بالتوفيق لكل السائقين على الطرق السريعة! 🚛☁️</div>
+                    <div class="feed-footer-actions">
+                        <button class="action-link" onclick="likePost(this)">❤️ <span class="likes-count">14</span> إعجاب</button>
+                        <button class="action-link" onclick="toggleComments(this)">💬 تعليق</button>
+                    </div>
+                    <div class="comments-section">
+                        <div class="comments-list"></div>
+                        <div class="comment-input-box">
+                            <input type="text" class="comment-input" placeholder="اكتب تعليقاً...">
+                            <button class="comment-btn" onclick="addComment(this)">إرسال</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            body.setAttribute("data-theme", newTheme);
+            localStorage.setItem("community_theme", newTheme);
+        }
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem("community_theme") || "light";
+            document.body.setAttribute("data-theme", savedTheme);
+        };
+
+        function publishCommunityPost() {
+            const text = document.getElementById("postText").value;
+            const category = document.getElementById("postCategory").value;
+
+            if(text.trim() === "") {
+                alert("يرجى كتابة محتوى الحالة أولاً.");
+                return;
+            }
+
+            const feedContainer = document.getElementById("communityFeed");
+            const newItem = document.createElement("div");
+            newItem.className = "feed-item";
+            newItem.setAttribute("data-category", category);
+
+            newItem.innerHTML = `
+                <div class="feed-header">
+                    <span>سائق (عضو المنصة)</span>
+                    <span class="badge">${category}</span>
+                </div>
+                <div class="feed-time">الآن</div>
+                <div class="feed-text">${escapeHtml(text)}</div>
+                <div class="feed-footer-actions">
+                    <button class="action-link" onclick="likePost(this)">❤️ <span class="likes-count">0</span> إعجاب</button>
+                    <button class="action-link" onclick="toggleComments(this)">💬 تعليق</button>
+                </div>
+                <div class="comments-section">
+                    <div class="comments-list"></div>
+                    <div class="comment-input-box">
+                        <input type="text" class="comment-input" placeholder="اكتب تعليقاً...">
+                        <button class="comment-btn" onclick="addComment(this)">إرسال</button>
+                    </div>
+                </div>
+            `;
+
+            feedContainer.prepend(newItem);
+            document.getElementById("postText").value = "";
+            alert("تم نشر الحالة بنجاح في مجتمع السائقين!");
+        }
+
+        function filterCommunity(cat, tabBtn) {
+            document.querySelectorAll(".filter-tab").forEach(btn => btn.classList.remove("active"));
+            tabBtn.classList.add("active");
+
+            const items = document.querySelectorAll(".feed-item");
+            items.forEach(item => {
+                if(cat === 'الكل' || item.getAttribute("data-category") === cat) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        function likePost(btn) {
+            const countSpan = btn.querySelector(".likes-count");
+            let count = parseInt(countSpan.innerText);
+            countSpan.innerText = count + 1;
+            btn.style.color = "var(--danger-color)";
+        }
+
+        function toggleComments(btn) {
+            const feedItem = btn.closest(".feed-item");
+            const commentsSec = feedItem.querySelector(".comments-section");
+            commentsSec.style.display = commentsSec.style.display === "block" ? "none" : "block";
+        }
+
+        function addComment(btn) {
+            const box = btn.closest(".comments-section");
+            const input = box.querySelector(".comment-input");
+            const text = input.value;
+            if(text.trim() === "") return;
+
+            const list = box.querySelector(".comments-list");
+            const newC = document.createElement("div");
+            newC.innerHTML = `<b>زميل طريق:</b> ${escapeHtml(text)}`;
+            list.appendChild(newC);
+
+            input.value = "";
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
 
         body {
             background-color: var(--bg-color);
