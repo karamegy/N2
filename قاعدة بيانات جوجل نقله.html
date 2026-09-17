@@ -1,0 +1,1555 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // 🛡️ 0. الدوال الأمنية الأساسية ودوال العزل السحابي (Security & Helper Functions)
+    // =========================================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isMainCompanyAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@na2la.net' ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name == 'المدير'
+          ) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == 'company_main'
+        ) ||
+        (
+          exists(/databases/$(database)/documents/drivers/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data.role == 'admin' ||
+            get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data.name == 'المدير'
+          ) &&
+          get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data.companyId == 'company_main'
+        )
+      );
+    }
+
+    function hasValidCompanyOnCreate() {
+      return isAuthenticated() && (
+        !('companyId' in request.resource.data) ||
+        request.resource.data.companyId == null ||
+        (request.resource.data.companyId is string && request.resource.data.companyId.size() > 0)
+      );
+    }
+
+    function isCompanyUntamperedOnUpdate() {
+      return isAuthenticated() && (
+        resource == null ||
+        !('companyId' in resource.data) ||
+        resource.data.companyId == null ||
+        !('companyId' in request.resource.data) ||
+        request.resource.data.companyId == resource.data.companyId
+      );
+    }
+
+    function canReadIsolatedData() {
+      return isAuthenticated() && (
+        resource == null ||
+        !('companyId' in resource.data) ||
+        resource.data.companyId == null ||
+        resource.data.companyId == "" ||
+        (resource.data.companyId is string && resource.data.companyId.size() > 0)
+      );
+    }
+
+    function isMasterAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@na2la.net' ||
+        (
+          exists(/databases/$(database)/documents/drivers/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data.role == 'admin' ||
+            get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data.name == 'المدير' ||
+            get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data.title == 'مدير النظام'
+          )
+        ) ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name == 'المدير' ||
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.title == 'مدير النظام'
+          )
+        )
+      );
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // =========================================================================
+    // 👥 1. إدارة حسابات السائقين والمستخدمين وفريق العمل (Users & Staff)
+    // =========================================================================
+
+    match /drivers/{driverId} {
+      // 🔓 مُحدث: السماح بالقراءة العامة لكي يتمكن نظام المطابقة من التحقق من بيانات الدخول قبل المصادقة
+      allow read: if true;
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isAuthenticated() && (isCompanyUntamperedOnUpdate() || isOwner(driverId) || isMasterAdmin());
+      allow delete: if isAuthenticated() && (isMasterAdmin() || isCompanyUntamperedOnUpdate());
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isCompanyUntamperedOnUpdate() || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /platform_users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /team/{teamId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && hasValidCompanyOnCreate();
+      allow update: if isAuthenticated() && isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🏢 2. إدارة الشركات والاشتراكات ومجموعات النظام (Companies & Subscriptions)
+    // =========================================================================
+
+    match /companies/{companyId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /com/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /Com/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /subscription_requests/{reqId} {
+      allow read, create, update, delete: if isAuthenticated();
+    }
+
+    match /companySettings/{settingId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 📦 3. الشحنات والطلبات والشحنات المجمعة والرحلات (Shipments & Orders)
+    // =========================================================================
+
+    match /shipments/{shipmentId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /cargo/{cargoId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /order/{orderId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /orders/{orderId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /trips/{tripId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 💰 4. الفواتير والماليات والخزينة والمصروفات (Financials & Treasury)
+    // =========================================================================
+
+    match /deferredInvoices/{invoiceId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /consolidatedInvoices/{invoiceId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /treasury/{treasuryId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /accounts/{accountId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 🚚 5. العملاء والأسطول والمركبات ومستندات العقود (Fleet & Customers)
+    // =========================================================================
+
+    match /customers/{customerId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /trucks/{truckId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /docs/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /biometricCredentials/{credId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 💬 6. المنشورات والمجتمعات والدردشة وغرف الشات (Community & Chat)
+    // =========================================================================
+
+    match /posts/{postId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /communityPosts/{postId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /community_posts/{postId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /community_settings/{settingId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /community_team/{teamId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /chat/{chatId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    match /chatMessages/{msgId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /private_chats/{chatId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /profileWalls/{wallId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // ⚙️ 7. إعدادات النظام وتطبيقات السحابة الموحدة (System Settings & Apps)
+    // =========================================================================
+
+    match /systemSettings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /appData/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /appStore/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /artifacts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /centralBroadcasts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 🐼 8. منظومة باندا والرادارات والبيومترك (Panda Ecosystem)
+    // =========================================================================
+
+    match /radars/{radarId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_data/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /world_data/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_webrtc_rooms/{roomId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_chat_messages/{msgId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_profile_posts/{postId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_biometric_logs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 📍 9. بيانات التتبع الحي والرحلات والجيوفينس (GPS Tracking & Geofencing)
+    // =========================================================================
+
+    match /driver_locations/{driverId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /trip_logs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /live_tracking_sessions/{sessionId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /geofences/{geofenceId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 📑 10. سجلات التدقيق والمراقبة الذاتية (Audit Logs & Security Traces)
+    // =========================================================================
+
+    match /audit_logs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /auditLogs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 🚨 11. مجموعات غرفة العمليات والطوارئ (Viper Operations Hub)
+    // =========================================================================
+
+    match /viper_emergencies/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_gps_live/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_fleet_ops/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_logistics/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_finance/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_wallet/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_advances/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_subcontractors/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /viper_radio_alerts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 🚀 12. مجموعات تطبيقات الفضاء والشبكات المتقدمة (Space Systems)
+    // =========================================================================
+
+    match /spacePilots/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spacePilotsV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /space_network_posts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spaceChatV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spacePaymentsV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // =========================================================================
+    // 📞 13. مكالمات الفيديو والصوت المباشر والإشارات (WebRTC & Streaming)
+    // =========================================================================
+
+    match /webrtc_calls/{callId} {
+      allow read, write: if isAuthenticated();
+      match /offerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+      match /answerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+    }
+
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+      match /offerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+      match /answerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+    }
+
+    match /{path=**}/offerCandidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /{path=**}/answerCandidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /{path=**}/candidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
+
+
+
+
+
+2 مؤمنه
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // 🛡️ 0. الدوال الأمنية الأساسية ودوال العزل السحابي (Security & Helper Functions)
+    // =========================================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data
+        : (
+          exists(/databases/$(database)/documents/drivers/$(request.auth.uid))
+            ? get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data
+            : {}
+        );
+    }
+
+    function isMasterAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@na2la.net' ||
+        getUserData().get('role', '') == 'admin' ||
+        getUserData().get('name', '') == 'المدير' ||
+        getUserData().get('title', '') == 'مدير النظام'
+      );
+    }
+
+    function isMainCompanyAdmin() {
+      return isMasterAdmin() && getUserData().get('companyId', '') == 'company_main';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasValidCompanyOnCreate() {
+      return isAuthenticated() && (
+        !('companyId' in request.resource.data) ||
+        request.resource.data.companyId == null ||
+        (request.resource.data.companyId is string && request.resource.data.companyId.size() > 0)
+      );
+    }
+
+    function isCompanyUntamperedOnUpdate() {
+      return isAuthenticated() && (
+        resource == null ||
+        !('companyId' in resource.data) ||
+        resource.data.companyId == null ||
+        !('companyId' in request.resource.data) ||
+        request.resource.data.companyId == resource.data.companyId
+      );
+    }
+
+    function canReadIsolatedData() {
+      return isAuthenticated() && (
+        isMasterAdmin() ||
+        resource == null ||
+        !('companyId' in resource.data) ||
+        resource.data.companyId == null ||
+        resource.data.companyId == "" ||
+        resource.data.companyId == getUserData().get('companyId', '')
+      );
+    }
+
+    // =========================================================================
+    // 👥 1. إدارة حسابات السائقين والمستخدمين وفريق العمل (Users & Staff)
+    // =========================================================================
+
+    match /drivers/{driverId} {
+      allow read: if isAuthenticated();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isAuthenticated() && (isCompanyUntamperedOnUpdate() || isOwner(driverId) || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isCompanyUntamperedOnUpdate() || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /platform_users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /team/{teamId} {
+      allow read: if canReadIsolatedData();
+      allow create: if isAuthenticated() && hasValidCompanyOnCreate();
+      allow update: if isAuthenticated() && isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🏢 2. إدارة الشركات والاشتراكات ومجموعات النظام (Companies & Subscriptions)
+    // =========================================================================
+
+    match /companies/{companyId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /com/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /Com/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /subscription_requests/{reqId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isMasterAdmin();
+    }
+
+    match /companySettings/{settingId} {
+      allow read: if canReadIsolatedData();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📦 3. الشحنات والطلبات والشحنات المجمعة والرحلات (Shipments & Orders)
+    // =========================================================================
+
+    match /shipments/{shipmentId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /cargo/{cargoId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /order/{orderId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /trips/{tripId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 💰 4. الفواتير والماليات والخزينة والمصروفات (Financials & Treasury)
+    // =========================================================================
+
+    match /deferredInvoices/{invoiceId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /consolidatedInvoices/{invoiceId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /treasury/{treasuryId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /accounts/{accountId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🚚 5. العملاء والأسطول والمركبات ومستندات العقود (Fleet & Customers)
+    // =========================================================================
+
+    match /customers/{customerId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /trucks/{truckId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /docs/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /biometricCredentials/{credId} {
+      allow read: if isAuthenticated() && isOwner(credId);
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 💬 6. المنشورات والمجتمعات والدردشة وغرف الشات (Community & Chat)
+    // =========================================================================
+
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (isMasterAdmin() || isOwner(resource.data.userId));
+    }
+
+    match /communityPosts/{postId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /community_posts/{postId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /community_settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /community_team/{teamId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /chat/{chatId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /chatMessages/{msgId} {
+      allow read, create: if isAuthenticated();
+      allow update, delete: if isMasterAdmin();
+    }
+
+    match /private_chats/{chatId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /profileWalls/{wallId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // ⚙️ 7. إعدادات النظام وتطبيقات السحابة الموحدة (System Settings & Apps)
+    // =========================================================================
+
+    match /systemSettings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /appData/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /appStore/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /artifacts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /centralBroadcasts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🐼 8. منظومة باندا والرادارات والبيومترك (Panda Ecosystem)
+    // =========================================================================
+
+    match /radars/{radarId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_data/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /world_data/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_webrtc_rooms/{roomId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_chat_messages/{msgId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_profile_posts/{postId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_biometric_logs/{logId} {
+      allow read: if isAuthenticated() && isMasterAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📍 9. بيانات التتبع الحي والرحلات والجيوفينس (GPS Tracking & Geofencing)
+    // =========================================================================
+
+    match /driver_locations/{driverId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isOwner(driverId) || isMasterAdmin());
+    }
+
+    match /trip_logs/{logId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /live_tracking_sessions/{sessionId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /geofences/{geofenceId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📑 10. سجلات التدقيق والمراقبة الذاتية (Audit Logs & Security Traces)
+    // =========================================================================
+
+    match /audit_logs/{logId} {
+      allow read: if isAuthenticated() && isMasterAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated() && isMasterAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // =========================================================================
+    // 🚨 11. مجموعات غرفة العمليات والطوارئ (Viper Operations Hub)
+    // =========================================================================
+
+    match /viper_emergencies/{docId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_gps_live/{docId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_fleet_ops/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_logistics/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_finance/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_wallet/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_advances/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_subcontractors/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_radio_alerts/{docId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🚀 12. مجموعات تطبيقات الفضاء والشبكات المتقدمة (Space Systems)
+    // =========================================================================
+
+    match /spacePilots/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spacePilotsV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /space_network_posts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spaceChatV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spacePaymentsV10/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📞 13. مكالمات الفيديو والصوت المباشر والإشارات (WebRTC & Streaming)
+    // =========================================================================
+
+    match /webrtc_calls/{callId} {
+      allow read, write: if isAuthenticated();
+      match /offerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+      match /answerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+    }
+
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+      match /offerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+      match /answerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+    }
+
+    match /{path=**}/offerCandidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /{path=**}/answerCandidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /{path=**}/candidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
+
+
+تامين جوجل فقط
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // 🛡️ 0. الدوال الأمنية الأساسية ودوال العزل السحابي (Security & Helper Functions)
+    // =========================================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data
+        : (
+          exists(/databases/$(database)/documents/drivers/$(request.auth.uid))
+            ? get(/databases/$(database)/documents/drivers/$(request.auth.uid)).data
+            : {}
+        );
+    }
+
+    function isMasterAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@na2la.net' ||
+        (getUserData().get('role', '') == 'admin' && getUserData().get('companyId', '') == 'company_main') ||
+        (getUserData().get('name', '') == 'المدير' && getUserData().get('companyId', '') == 'company_main') ||
+        getUserData().get('title', '') == 'مدير النظام'
+      );
+    }
+
+    function isMainCompanyAdmin() {
+      return isMasterAdmin() && getUserData().get('companyId', '') == 'company_main';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasValidCompanyOnCreate() {
+      return isAuthenticated() && (
+        !('companyId' in request.resource.data) ||
+        request.resource.data.companyId == null ||
+        (request.resource.data.companyId is string && request.resource.data.companyId.size() > 0)
+      );
+    }
+
+    function isCompanyUntamperedOnUpdate() {
+      return isAuthenticated() && (
+        resource == null ||
+        !('companyId' in resource.data) ||
+        resource.data.companyId == null ||
+        !('companyId' in request.resource.data) ||
+        request.resource.data.companyId == resource.data.companyId
+      );
+    }
+
+    function canReadIsolatedData() {
+      return isAuthenticated() && (
+        isMasterAdmin() ||
+        resource == null ||
+        !('companyId' in resource.data) ||
+        resource.data.companyId == null ||
+        resource.data.companyId == "" ||
+        resource.data.companyId == getUserData().get('companyId', '')
+      );
+    }
+
+    // =========================================================================
+    // 👥 1. إدارة حسابات السائقين والمستخدمين وفريق العمل (Users & Staff)
+    // =========================================================================
+
+    match /drivers/{driverId} {
+      allow read: if isAuthenticated();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isAuthenticated() && (isCompanyUntamperedOnUpdate() || isOwner(driverId) || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isCompanyUntamperedOnUpdate() || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /platform_users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(userId) || isMasterAdmin());
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /team/{teamId} {
+      allow read: if canReadIsolatedData();
+      allow create: if isAuthenticated() && hasValidCompanyOnCreate();
+      allow update: if isAuthenticated() && isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🏢 2. إدارة الشركات والاشتراكات ومجموعات النظام Dynamic Companies
+    // =========================================================================
+
+    match /companies/{companyId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /{path=**}/companies/{companyId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /com/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /Com/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // التوافق مع مجموعات الشركات الديناميكية المستحدثة (companies_comp_*)
+    match /{collectionId}/{docId} {
+      allow read: if isAuthenticated() && collectionId.matches('^companies_.*');
+      allow write: if isMasterAdmin() && collectionId.matches('^companies_.*');
+    }
+
+    match /subscription_requests/{reqId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isMasterAdmin();
+    }
+
+    match /companySettings/{settingId} {
+      allow read: if canReadIsolatedData();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📦 3. الشحنات والطلبات والشحنات المجمعة والرحلات (Shipments & Orders)
+    // =========================================================================
+
+    match /shipments/{shipmentId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /cargo/{cargoId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /order/{orderId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /trips/{tripId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 💰 4. الفواتير والماليات والخزينة والمصروفات (Financials & Treasury)
+    // =========================================================================
+
+    match /deferredInvoices/{invoiceId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /consolidatedInvoices/{invoiceId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /treasury/{treasuryId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /accounts/{accountId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🚚 5. العملاء والأسطول والبصمة والتمرير البيومتري (Fleet, Auth & Biometrics)
+    // =========================================================================
+
+    match /customers/{customerId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /trucks/{truckId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /docs/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    // 🔓 إصلاح البصمة: السماح للمستخدم بقراءة وإنشاء وتحديث سجلات البصمة الخاصة به
+    match /biometricCredentials/{credId} {
+      allow read: if isAuthenticated() && (
+        resource == null ||
+        isOwner(credId) ||
+        resource.data.get('userId', '') == request.auth.uid ||
+        resource.data.get('uid', '') == request.auth.uid ||
+        isMasterAdmin()
+      );
+      allow create: if isAuthenticated() && (
+        isOwner(credId) ||
+        request.resource.data.get('userId', '') == request.auth.uid ||
+        request.resource.data.get('uid', '') == request.auth.uid
+      );
+      allow update: if isAuthenticated() && (
+        isOwner(credId) ||
+        resource.data.get('userId', '') == request.auth.uid ||
+        resource.data.get('uid', '') == request.auth.uid ||
+        isMasterAdmin()
+      );
+      allow delete: if isAuthenticated() && (
+        isOwner(credId) ||
+        resource.data.get('userId', '') == request.auth.uid ||
+        isMasterAdmin()
+      );
+    }
+
+    // =========================================================================
+    // 💬 6. المنشورات والمجتمعات والدردشة وغرف الشات (Community & Chat)
+    // =========================================================================
+
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (isMasterAdmin() || isOwner(resource.data.get('userId', '')));
+    }
+
+    match /communityPosts/{postId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /community_posts/{postId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /community_settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /community_team/{teamId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /chat/{chatId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    match /chatMessages/{msgId} {
+      allow read, create: if isAuthenticated();
+      allow update, delete: if isMasterAdmin();
+    }
+
+    match /private_chats/{chatId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /profileWalls/{wallId} {
+      allow read: if canReadIsolatedData();
+      allow create: if hasValidCompanyOnCreate();
+      allow update: if isCompanyUntamperedOnUpdate();
+      allow delete: if isAuthenticated() && isMasterAdmin();
+    }
+
+    // =========================================================================
+    // ⚙️ 7. إعدادات النظام وتطبيقات السحابة الموحدة (System Settings & Apps)
+    // =========================================================================
+
+    match /systemSettings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /appData/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /appStore/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /artifacts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    match /centralBroadcasts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🐼 8. منظومة باندا والرادارات والبيومترك (Panda Ecosystem)
+    // =========================================================================
+
+    match /radars/{radarId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_data/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /world_data/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_webrtc_rooms/{roomId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_chat_messages/{msgId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_profile_posts/{postId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /panda_biometric_logs/{logId} {
+      allow read: if isAuthenticated() && (isMasterAdmin() || resource.data.get('userId', '') == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update, delete: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📍 9. بيانات التتبع الحي والرحلات والجيوفينس (GPS Tracking & Geofencing)
+    // =========================================================================
+
+    match /driver_locations/{driverId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isOwner(driverId) || isMasterAdmin());
+    }
+
+    match /trip_logs/{logId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /live_tracking_sessions/{sessionId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /geofences/{geofenceId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📑 10. سجلات التدقيق والمراقبة الذاتية (Audit Logs & Security Traces)
+    // =========================================================================
+
+    match /audit_logs/{logId} {
+      allow read: if isAuthenticated() && isMasterAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated() && isMasterAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // =========================================================================
+    // 🚨 11. مجموعات غرفة العمليات والطوارئ (Viper Operations Hub)
+    // =========================================================================
+
+    match /viper_emergencies/{docId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_gps_live/{docId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_fleet_ops/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_logistics/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_finance/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_wallet/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_advances/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_subcontractors/{docId} {
+      allow read: if canReadIsolatedData();
+      allow create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    match /viper_radio_alerts/{docId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 🚀 12. مجموعات تطبيقات الفضاء والشبكات المتقدمة (Space Systems)
+    // =========================================================================
+
+    match /spacePilots/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spacePilotsV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /space_network_posts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spaceChatV10/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /spacePaymentsV10/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMasterAdmin();
+    }
+
+    // =========================================================================
+    // 📞 13. مكالمات الفيديو والصوت المباشر والإشارات (WebRTC & Streaming)
+    // =========================================================================
+
+    match /webrtc_calls/{callId} {
+      allow read, write: if isAuthenticated();
+      match /offerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+      match /answerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+    }
+
+    match /calls/{callId} {
+      allow read, write: if isAuthenticated();
+      match /offerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+      match /answerCandidates/{candidateId} { allow read, write: if isAuthenticated(); }
+    }
+
+    match /{path=**}/offerCandidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /{path=**}/answerCandidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /{path=**}/candidates/{candidateId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
+
+اخر اصدار هذا يعمل بدون تسجيل حر 
+اول اصدار يعمل بلدخول الحر 
